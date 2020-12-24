@@ -68,5 +68,5 @@ def test(model, criterion, data_loader, device, test_num, log, logged=False):
 
     if logged:
         log.append(f'{acc:.2f}\t\n')
-        with open('result/gnn_20201205_learnable_edges.txt', 'a') as f:
+        with open('result/gnn_20201218_learnable_edges_raw.txt', 'a') as f:
             f.writelines(log)

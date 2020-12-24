@@ -36,7 +36,9 @@ def load_corss_sub_data(subject_id=1):
                 y_train = np.concatenate((y_train, y), axis=0)
         else:
             x_test, y_test = x, y
-    
+
+    x_train = x_train.reshape(x_train.shape[0], 1, x_train.shape[1], x_train.shape[2])
+    x_test = x_test.reshape(x_test.shape[0], 1, x_test.shape[1], x_test.shape[2])
     print(f'Processed train data shape: {x_train.shape}')
     print(f'Processed test  data shape: {x_test.shape}')
     return (x_train, x_test, y_train, y_test)

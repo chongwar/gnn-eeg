@@ -209,6 +209,23 @@ def gen_features_wavelet(x, wavelet='db4', level=4, axis=0):
     # approximation coefficients of the forth level of decomposition
     cAi = coeffs[0]
     features = cAi.T
+    features = preprocessing.scale(features)
+    return features
+
+
+def gen_features_raw(x):
+    """
+    Generate node features using raw data.
+    :param x: (T, C)
+    :param wavelet: wavelet function (default: 'db4)
+    :param level: decomposition level (default: 4)
+    :param axis: axis over which to compute the DWT
+    :return: normalized node features, shape: (C, F)
+             C denotes the number of nodes,
+             F denotes the number of node features.
+    """
+    x = x[range(0, x.shape[0], 2), :]
+    features = x.T
     return features
 
 
@@ -226,6 +243,7 @@ if __name__ == '__main__':
     # features = gen_features_cre(_x)
     # features = gen_features_psd_group(_x)
     # features = gen_features_cre_group(_x)
-    features = gen_features_wavelet(_x)
+    # features = gen_features_wavelet(_x)
+    features = gen_features_raw(_x)
     print(features.shape)
     print(features)

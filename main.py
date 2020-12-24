@@ -27,6 +27,7 @@ nets['tag_jk_learn'] = TAGWithJKLearn
 nets['tag_learn'] = TAGLearn
 nets['gcn_learn'] = GCNLearn
 nets['sgcn_learn'] = SGCNLearn
+nets['sort_pool'] = TAGSortPool
 
 
 def generate_data_info(subject_id, edge_type='corr', feature_type='psd_group'):
@@ -102,8 +103,7 @@ if __name__ == '__main__':
     # _subject_id = [8, 12]
     # _edge_type = ['corr', 'wpli', 'plv', 'cg']
     _edge_type = ['cg']
-    _feature_type = ['psd_group']
-    # _feature_type = ['psd_group']
+    _feature_type = ['raw']
     _batch_size = [2, 4, 8, 16]
     # _net_name = [name for name in nets.keys()]
     _net_name = ['tag_learn']
@@ -116,6 +116,10 @@ if __name__ == '__main__':
                 data_info = generate_data_info(subject_id, edge_type, feature_type)
                 for batch_size in _batch_size:
                     for net_name in _net_name:
+                        if batch_size in [2, 4]:
+                            _epochs = [10, 20, 30]
+                        else:
+                            _epochs = [30, 40, 50]
                         for epochs in _epochs:
                             main(nets, net_name, data_info, batch_size,
                                  epochs, num_iteration, logged)

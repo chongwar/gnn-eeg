@@ -23,12 +23,13 @@ class TAGLearn(torch.nn.Module):
         self.conv1 = TAGConv(num_features, 8)
         self.conv2 = TAGConv(8, 8)
 
-        # self.fc = torch.nn.Linear(2 * 16, 1)
+        # self.fc = torch.nn.Linear(2 * 8, 2)
         self.fc = torch.nn.Linear(8, 2)
 
         num_edges = channels * channels - channels
         self.edge_weight = torch.nn.Parameter(torch.FloatTensor(num_edges, 1),
                                               requires_grad=True)
+
         self.edge_weight.data.fill_(1)
         # glorot(self.edge_weight)
         # print(self.edge_weight)

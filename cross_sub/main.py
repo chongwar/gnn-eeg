@@ -8,7 +8,8 @@ from model import *
 from utils.dataset_eegnet import MyDataset
 from utils.dataset import gen_data_list, gen_dataloader
 from cross_sub.load_data import load_corss_sub_data
-from cross_sub.train_test import train, test
+# from cross_sub.train_test import train, test
+from cross_sub.train_test_eegnet import train, test
 
 if torch.cuda.is_available():
     torch.backends.cudnn.deterministic = True
@@ -29,6 +30,7 @@ nets['tag_jk_learn'] = TAGWithJKLearn
 nets['tag_learn'] = TAGLearn
 nets['gcn_learn'] = GCNLearn
 nets['sgcn_learn'] = SGCNLearn
+nets['eegnet'] = EEGNet
 
 
 def generate_data_info(subject_id, edge_type='corr', feature_type='psd_group'):
@@ -39,32 +41,32 @@ def generate_data_info(subject_id, edge_type='corr', feature_type='psd_group'):
     # num_classes = 2
     train_num, test_num = x_train.shape[0], x_test.shape[0]
 
-    # ------------------------------ for gnn model ---------------------------------
-    print('Loading training data...')
-    train_list = gen_data_list(x_train, y_train,
-                               edge_type=edge_type, feature_type=feature_type)
-    print('Loading testing data...')
-    test_list = gen_data_list(x_test, y_test,
-                              edge_type=edge_type, feature_type=feature_type)
-    # ------------------------------------------------------------------------------
-
-    # # ------------------------------ for cnn model --------------------------------- 
+    # # ------------------------------ for gnn model ---------------------------------
     # print('Loading training data...')
-    # train_list = MyDataset(x_train, x_test, y_train, y_test)
+    # train_list = gen_data_list(x_train, y_train,
+    #                            edge_type=edge_type, feature_type=feature_type)
     # print('Loading testing data...')
-    # test_list = MyDataset(x_train, x_test, y_train, y_test, train=False)
-    # # ------------------------------------------------------------------------------ 
+    # test_list = gen_data_list(x_test, y_test,
+    #                           edge_type=edge_type, feature_type=feature_type)
+    # # ------------------------------------------------------------------------------
+
+    # ------------------------------ for cnn model ---------------------------------
+    print('Loading training data...')
+    train_list = MyDataset(x_train, x_test, y_train, y_test)
+    print('Loading testing data...')
+    test_list = MyDataset(x_train, x_test, y_train, y_test, train=False)
+    # ------------------------------------------------------------------------------
     
     data_info = defaultdict()
     data_info['subject_id'] = subject_id
     data_info['edge_type'] = edge_type
     data_info['feature_type'] = feature_type
-    data_info['num_features'] = train_list[0].num_features
+    # data_info['num_features'] = train_list[0].num_features
     # data_info['num_classes'] = num_classes
     data_info['train_num'] = train_num
     data_info['test_num'] = test_num
-    data_info['train_lis'] = train_list
-    data_info['test_lis'] = test_list
+    data_info['train_list'] = train_list
+    data_info['test_list'] = test_list
 
     return data_info
 
@@ -74,26 +76,28 @@ def main(nets, net_name, data_info, batch_size, epochs, num_iteration, logged=Fa
     subject_id = data_info['subject_id']
     edge_type = data_info['edge_type']
     feature_type = data_info['feature_type']
-    num_features = data_info['num_features']
+    # num_features = data_info['num_features']
 
-    # ------------------------------ for gnn model ---------------------------------
-    train_loader = gen_dataloader(data_info['train_lis'],
-                                  batch_size=batch_size)
-    test_loader = gen_dataloader(data_info['test_lis'],
-                                 batch_size=batch_size)
-    # ------------------------------------------------------------------------------
-
-    # # ------------------------------ for cnn model ---------------------------------
-    # train_loader = DataLoader(data_info['train_list'],
-    #                           batch_size=batch_size, shuffle=True)
-    # test_loader = DataLoader(data_info['test_list'],
-    #                          batch_size=batch_size)
+    # # ------------------------------ for gnn model ---------------------------------
+    # train_loader = gen_dataloader(data_info['train_list'],
+    #                               batch_size=batch_size)
+    # test_loader = gen_dataloader(data_info['test_list'],
+    #                              batch_size=batch_size)
     # # ------------------------------------------------------------------------------
+
+    # ------------------------------ for cnn model ---------------------------------
+    train_loader = DataLoader(data_info['train_list'],
+                              batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(data_info['test_list'],
+                             batch_size=batch_size)
+    # ------------------------------------------------------------------------------
     
 
     for i in trange(num_iteration):
         # model initiation
-        if net_name == 'tag_jk' or net_name == 'tag_jk_learn':
+        if net_name == 'eegnet':
+            model = nets[net_name]().to(device)
+        elif net_name == 'tag_jk' or net_name == 'tag_jk_learn':
             model = nets[net_name](num_features, 4).to(device)
         else:
             model = nets[net_name](num_features).to(device)
@@ -125,11 +129,12 @@ if __name__ == '__main__':
     _edge_type = ['cg']
     _feature_type = ['psd_group']
     # _feature_type = ['psd_group']
-    _batch_size = [8, 16, 32, 64]
+    _batch_size = [8, 16, 32]
     # _net_name = [name for name in nets.keys()]
-    _net_name = ['tag_learn']
-    _epochs = [20, 30, 40, 60, 80]
-    num_iteration = 5
+    # _net_name = ['tag_learn']
+    _net_name = ['eegnet']
+    _epochs = [20, 40]
+    num_iteration = 2
     logged = True
     for subject_id in _subject_id:
         for edge_type in _edge_type:

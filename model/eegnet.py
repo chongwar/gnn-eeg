@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class EEGNet(nn.Module):
-    def __init__(self, num_classes):
+    def __init__(self, num_classes=2):
         super(EEGNet, self).__init__()
         self.drop_out = 0.25
         
@@ -36,6 +36,7 @@ class EEGNet(nn.Module):
         self.fc1 = nn.Linear((16 * (256 // 32)), num_classes)
     
     def forward(self, x):
+        # print(x.shape)
         x = x.permute(0, 1, 3, 2)
         x = self.block_1(x)
         x = self.block_2(x)
