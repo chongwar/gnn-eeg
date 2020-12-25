@@ -12,3 +12,4 @@ from .gcn_learn import GCNLearn
 from .sgcn_learn import SGCNLearn
 from .eegnet import EEGNet
 from .tag_sort_pool_ import TAGSortPool
+from .tag_merge import TAGMerge
