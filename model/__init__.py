@@ -6,10 +6,11 @@ from .set2set import Set2SetNet
 from .sgcn import SGCN
 from .tag import TAG
 from .tag_jk import TAGWithJK
-from  .tag_jk_learn import TAGWithJKLearn
+from .tag_jk_learn import TAGWithJKLearn
 from .tag_learn import TAGLearn
 from .gcn_learn import GCNLearn
 from .sgcn_learn import SGCNLearn
 from .eegnet import EEGNet
 from .tag_sort_pool_ import TAGSortPool
 from .tag_merge import TAGMerge
+from .tag_lstm import TAGLSTM

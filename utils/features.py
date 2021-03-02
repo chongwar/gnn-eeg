@@ -213,9 +213,9 @@ def gen_features_wavelet(x, wavelet='db4', level=4, axis=0):
     return features
 
 
-def gen_features_raw(x):
+def gen_features_wt_deg(x, wavelet='coif1', level=4, axis=0):
     """
-    Generate node features using raw data.
+    Generate node features based on degree after wavelet decomposition.
     :param x: (T, C)
     :param wavelet: wavelet function (default: 'db4)
     :param level: decomposition level (default: 4)
@@ -224,7 +224,33 @@ def gen_features_raw(x):
              C denotes the number of nodes,
              F denotes the number of node features.
     """
-    x = x[range(0, x.shape[0], 2), :]
+    features = []
+    coeffs = wavedec(x, wavelet=4, level=level, axis=axis)
+    # approximation coefficients of the level-th decomposition
+    cAi = coeffs[0]
+    for ch in range(cAi.shape[1]):
+        wt_series = cAi[:, ch]
+        # wt_series = wt_series - min(wt_series) + 0.1
+
+        _edges = visibility(wt_series)
+        edges = [[i[0], j] for i in _edges for j in i[1]]
+        hvg = nx.Graph()
+        hvg.add_edges_from(edges)
+        degree = [(i, j) for i, j in hvg.degree]
+        degree.sort()
+        features.append([j for i, j in degree])
+
+    features = np.asarray(features)
+    # features = preprocessing.scale(features)
+    return features
+
+
+def gen_features_raw(x):
+    """
+    Generate node features using raw data.
+    :param x: (T, C)
+    """
+    # x = x[range(0, x.shape[0], 2), :]
     features = x.T
     return features
 
@@ -244,6 +270,7 @@ if __name__ == '__main__':
     # features = gen_features_psd_group(_x)
     # features = gen_features_cre_group(_x)
     # features = gen_features_wavelet(_x)
-    features = gen_features_raw(_x)
+    # features = gen_features_raw(_x)
+    features = gen_features_wt_deg(_x)
     print(features.shape)
     print(features)

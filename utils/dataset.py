@@ -6,7 +6,7 @@ from .edges import *
 from .features import gen_features_hvg, \
     gen_features_cre, gen_features_cre_group, \
     gen_features_psd_group, gen_features_wavelet, \
-    gen_features_raw
+    gen_features_raw, gen_features_wt_deg
 
 
 def gen_data_list(data, label, edge_type='corr', feature_type='psd_group'):
@@ -45,6 +45,8 @@ def gen_data_list(data, label, edge_type='corr', feature_type='psd_group'):
             x = gen_features_wavelet(trial_data, wavelet='coif1', level=4)
         elif feature_type == 'raw':
             x = gen_features_raw(trial_data)
+        elif feature_type == 'wt_deg':
+            x = gen_features_wt_deg(trial_data, level=5)
 
         edge_index = torch.from_numpy(edge_index).long()
         edge_weight = torch.from_numpy(edge_weight).float()

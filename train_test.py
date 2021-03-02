@@ -11,6 +11,13 @@ def train(model, criterion, optimizer, data_loader, device, train_num, epochs, l
         batch_size = None
         
         for index, data in enumerate(data_loader):
+
+            if index == 0:
+                np.save('x.npy', data.x)
+                np.save('edge_index.npy', data.edge_index)
+                np.save('batch.npy', data.batch)
+                np.save('edge_weight.npy', data.edge_attr)
+
             data = data.to(device)
             y = torch.from_numpy(np.asarray(data.y)).float()
             y = y.to(device)
@@ -32,9 +39,8 @@ def train(model, criterion, optimizer, data_loader, device, train_num, epochs, l
         _loss = running_loss / (batch_num + 1)
         acc = num_correct.item() / train_num * 100
         
-        if logged:
-            print(f'Epoch {epoch + 1}/{epochs}\tTrain loss: {_loss:.4f}\t'
-                  f'Train acc: {acc:.2f}%')
+        print(f'Epoch {epoch + 1}/{epochs}\tTrain loss: {_loss:.4f}\t'
+              f'Train acc: {acc:.2f}%')
 
     # path = f'checkpoint/{model.__class__.__name__}_{epochs}.pth'
     # torch.save(model.state_dict(), path)
@@ -68,5 +74,5 @@ def test(model, criterion, data_loader, device, test_num, log, logged=False):
 
     if logged:
         log.append(f'{acc:.2f}\t\n')
-        with open('result/gnn_20201218_learnable_edges_raw.txt', 'a') as f:
+        with open('result/gnn_20210111.txt', 'a') as f:
             f.writelines(log)

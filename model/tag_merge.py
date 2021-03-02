@@ -21,10 +21,13 @@ class TAGMerge(torch.nn.Module):
         super(TAGMerge, self).__init__()
         self.num_channels = channels
 
-        self.conv1 = TAGConv(num_features, 8)
-        self.conv2 = TAGConv(8, 8)
+        self.conv_prior_1 = TAGConv(num_features, 4)
+        self.conv_prior_2 = TAGConv(4, 8)
 
-        self.fc = torch.nn.Linear(8 * 2, 2)
+        self.conv_learn_1 = TAGConv(num_features, 4)
+        self.conv_learn_2 = TAGConv(4, 8)
+
+        self.fc = torch.nn.Linear(8, 2)
 
         num_edges = channels * channels - channels
         self.edge_weight_learn = torch.nn.Parameter(torch.FloatTensor(num_edges, 1),
@@ -48,16 +51,17 @@ class TAGMerge(torch.nn.Module):
         edge_index_learn = edge_index_learn.repeat(1, batch_size).to(device)
 
         # calculate the prior graph representation
-        x_prior = F.relu(self.conv1(x, edge_index_prior, edge_weight_prior))
-        x_prior = F.relu(self.conv2(x_prior, edge_index_prior, edge_weight_prior))
+        x_prior = F.relu(self.conv_prior_1(x, edge_index_prior, edge_weight_prior))
+        x_prior = F.relu(self.conv_prior_2(x_prior, edge_index_prior, edge_weight_prior))
         x_prior = gap(x_prior, batch)
 
         # calculate the learned graph representation
-        x_learn = F.relu(self.conv1(x, edge_index_learn, edge_weight_learn))
-        x_learn = F.relu(self.conv2(x_learn, edge_index_learn, edge_weight_learn))
+        x_learn = F.relu(self.conv_learn_1(x, edge_index_learn, edge_weight_learn))
+        x_learn = F.relu(self.conv_learn_2(x_learn, edge_index_learn, edge_weight_learn))
         x_learn = gap(x_learn, batch)
 
-        x = torch.cat([x_prior, x_learn], dim=1)
+        x = x_prior + x_learn
+        # x = torch.cat([x_prior, x_learn], dim=1)
 
         x = self.fc(x)
         return x
@@ -75,5 +79,5 @@ class TAGMerge(torch.nn.Module):
 
 
 if __name__ == '__main__':
-    tag_learn = TAGLearn(5)
+    tag_learn = TAGMerge(5)
     print(tag_learn)

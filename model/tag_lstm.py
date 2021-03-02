@@ -16,8 +16,8 @@ class TAGLSTM(torch.nn.Module):
     <https://arxiv.org/abs/1710.10370>
     """
 
-    def __init__(self, time_samples=256, channels=64, seq_len=32, input_size=8,
-                 hidden_size=4, num_layers=2):
+    def __init__(self, time_samples=128, channels=64, seq_len=8, input_size=4,
+                 hidden_size=4, num_layers=1):
         super(TAGLSTM, self).__init__()
         self.T = time_samples
         self.C = channels

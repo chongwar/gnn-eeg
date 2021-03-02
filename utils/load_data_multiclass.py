@@ -80,10 +80,10 @@ def scale_data(data):
 
 
 def load_data(subject_id=1):
-    data_dir = f'data/s{subject_id:>02d}'
+    data_dir = f'data/multiclass/s{subject_id:>02d}'
     # shape of x:(N, T, C)
-    x = np.load(f'data/s{subject_id:>02d}/x_2.npy').astype(np.float32)
-    y = np.load(f'data/s{subject_id:>02d}/y_2.npy').astype(np.int64)
+    x = np.load(f'data/multiclass/s{subject_id:>02d}/x_2.npy').astype(np.float32)
+    y = np.load(f'data/multiclass/s{subject_id:>02d}/y_2.npy').astype(np.int64)
 
     print(f'Original data shape: {x.shape}')
 
@@ -99,7 +99,6 @@ def load_data(subject_id=1):
     # preprocess
     scale_data(x_train)
     scale_data(x_test)
-
     print(f'Processed train data shape: {x_train.shape}')
     print(f'Processed test  data shape: {x_test.shape}')
 
